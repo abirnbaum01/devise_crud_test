@@ -1,6 +1,6 @@
 <%= form_for  @user  do |f| %>
   <% if  @user .errors.any? %>
-    <div class="error_explanation">
+    <div id="error_explanation">
       <h2><%= pluralize( @user .errors.count, "error") %> prohibited this user from being saved:</h2>
 
       <ul>
@@ -14,12 +14,16 @@
   <div class="field">
     <%= f.label :email %>
     <div class="controls">
-      <%= f.email_field :email %>
+      <% if can? :manage, User %>
+        <%= f.email_field :email %>
+      <% else %>
+        <%= f.email_field :email, :disabled => true %>
+      <% end %>
     </div>
   </div>
 
   <div class="field">
-    <%= f.label :password, "Password" %>
+    <%= f.label :password %>
     <div class="controls">
       <%= f.password_field :password %>
     </div>
@@ -31,6 +35,18 @@
       <%= f.password_field :password_confirmation %>
     </div>
   </div>
+
+  <% if can? :manage, User %>
+    <div class="field">
+      <%= f.label :roles %>
+      <div class="controls">
+        <% Role.all.each do |role| %>
+          <%= check_box_tag "user[role_ids][]", role.id,  @user .role_ids.include?(role.id) %>
+          <%= role.name %><br />
+        <% end %>
+      </div>
+    </div>
+  <% end %>
 
   <div class="actions">
     <%= f.submit %>
